@@ -35,17 +35,18 @@ export async function getUrlByIdMiddleware(req, res, next) {
     next();
 }
 
-export async function redirectMiddleware() {
-    const id = parseInt(req.params);
+export async function redirectMiddleware(req, res, next) {
+    const shortUrl = Number(req.params.shortUrl);
 
-    const { rowCount, rows } = connection.query(`
+    console.log(shortUrl);
+    const { rowCount, rows } = await connection.query(`
     SELECT * FROM links WHERE id = $1
-    `, [id]);
+    `, [shortUrl]);
 
-    if (!rowCount) {
+    if (rowCount === 0) {
         return res.sendStatus(404);
     }
-    console.log(rows[0].url);
+    console.log(rows);
     res.locals.url = rows[0].url;
     
     next();

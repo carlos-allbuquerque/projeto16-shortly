@@ -34,9 +34,9 @@ export async function getUrlById(req, res) {
     res.status(200).send(url);
 }
 
-export async function redirect() {
+export async function redirect(req, res) {
     const url = res.locals.url;
 
-    res.redirect("/url");
+    res.redirect(url);
 
 }
