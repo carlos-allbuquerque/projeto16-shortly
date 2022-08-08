@@ -63,3 +63,48 @@ export async function getRanking(req, res) {
         return res.sendStatus(500);
     }
 }
+
+export async function getUserData(req, res) {
+    const token = res.locals.token;
+
+    try {
+        const { sessionId } = jwt.verify(token, process.env.JWT_KEY);
+        const userId = Number(sessionId);
+
+        const { rows: userData } = await connection.query(`
+            SELECT users.id, users.name FROM users WHERE users.id = $1
+        `, [userId]);
+
+        if (!userData) {
+            return res.sendStatus(404);
+        }
+
+        const { rows: userLinksData } = await connection.query(`
+            SELECT links.id, links."shortUrl", links.url, links."visitCount" 
+            FROM links WHERE links."userId" = $1
+        `, [userId]);
+
+        const user = userData[0];
+        const userLinks = userLinksData[0];
+        const array = [userLinks];
+        let visitsSum = 0;
+
+        for (let i = 0; i < array.length; i++) {
+            visitsSum += array[i].visitCount;
+        }
+
+        const mergedUser = {
+            ...user,
+            visitCount: visitsSum,
+            shortenedUrl: [
+                userLinks
+            ]
+        }
+        
+        return res.status(200).send(mergedUser);
+
+    } catch (error){
+        console.log(error.message);
+        return res.sendStatus(500);
+    }
+}

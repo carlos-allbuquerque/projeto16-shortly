@@ -1,7 +1,7 @@
 import joi from "joi";
 import dotenv from "dotenv";
 import connection from "../db/postgres.js";
-import jwt from "jsonwebtoken";
+
 
 dotenv.config();
 
@@ -53,3 +53,18 @@ export async function redirectMiddleware(req, res, next) {
     
     next();
 }
+
+export async function getUserDataMiddleware(req, res, next) {
+    const { authorization } = req.headers;
+    
+    const token = authorization?.replace('Bearer ', '');
+    
+    if (!token) {
+        return res.status(401).send("token inválido")
+    };
+
+    res.locals.token = token;
+    
+    next();
+}
+    
