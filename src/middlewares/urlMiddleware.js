@@ -1,6 +1,7 @@
 import joi from "joi";
 import dotenv from "dotenv";
 import connection from "../db/postgres.js";
+import jwt from "jsonwebtoken";
 
 dotenv.config();
 
@@ -48,6 +49,7 @@ export async function redirectMiddleware(req, res, next) {
     }
     console.log(rows);
     res.locals.url = rows[0].url;
+    res.local.userId = rows[0].userId;
     
     next();
 }

@@ -30,13 +30,36 @@ export async function getUrlById(req, res) {
     const { id } = req.params;
     const url = res.locals.url;
 
-
     res.status(200).send(url);
 }
 
 export async function redirect(req, res) {
     const url = res.locals.url;
+    const userId = res.locals.userId;
+
+    const {rows} = connection.query(`
+    UPDATE links SET "visitCount" = "visitCount" + 1 WHERE  links.url = $1 AND links."userId = $2"`, [url, userId]);
 
     res.redirect(url);
+}
 
+export async function getRanking(req, res) {
+    
+    try {
+        const {rows} = await connection.query(`
+            SELECT users.id, users.name,
+            COUNT(links) as "linkCount",
+            SUM(
+                CASE WHEN links."visitCount" IS NULL THEN 0 ELSE links."visitCount" END
+            ) as "visitCount"
+            FROM users
+            LEFT JOIN links ON links."userId"=users.id
+            GROUP BY users.id
+            ORDER BY "linkCount" DESC LIMIT 10
+        `)
+        return res.status(200).send(rows);
+    }catch (error){
+        console.log(error.message);
+        return res.sendStatus(500);
+    }
 }
