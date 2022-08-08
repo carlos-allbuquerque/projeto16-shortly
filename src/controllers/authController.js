@@ -25,11 +25,12 @@ export async function login(req, res) {
       VALUES ($1)`
     , [userId]);
 
-    const sessionId = await connection.query(`
-      SELECT id from sessions WHERE "userId" = $1 
+    const { rows } = await connection.query(`
+      SELECT "userId" from sessions WHERE "userId" = $1 
     `, [userId]);
 
-    const token = jwt.sign({sessionId}, process.env.JWT_KEY, { expiresIn: 60*60*24*30 });
+    const sessionId = rows[0].userId;
+    const token = jwt.sign({sessionId}, process.env.JWT_KEY);
 
     res.status(200).send(token);
 
@@ -37,3 +38,4 @@ export async function login(req, res) {
     res.sendStatus(500);
   }
 }
+

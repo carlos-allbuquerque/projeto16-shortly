@@ -35,6 +35,7 @@ export async function signInMiddleware(req, res, next) {
 
     if (error) {
         return res.sendStatus(422);
+        
     }
 
     const { rows, rowCount } = await connection.query(`
@@ -44,7 +45,7 @@ export async function signInMiddleware(req, res, next) {
     if (!rowCount || !bcrypt.compareSync(user.password, rows[0].password) ) {
         return res.sendStatus(401);
     }
-    res.locals.userId = rows[0].id;
+    res.locals.userId = parseInt(rows[0].id);
 
     next();
 }
