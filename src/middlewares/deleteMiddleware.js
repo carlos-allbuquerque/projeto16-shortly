@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 
 export default async function deleteUrlMiddleware(req, res, next) {
     const { authorization } = req.headers;
-    const { id } = req.params;
+    const id = req.params.id;
     console.log(id);
     const numberId = parseInt(id);
 
@@ -13,13 +13,22 @@ export default async function deleteUrlMiddleware(req, res, next) {
         return res.status(401).send("token inválido")
     };
     
-    const { rowCont } = connection.query(`
+    const { sessionId } =  jwt.verify(token, process.env.JWT_KEY);
+
+    const { rowCont, rows } = await connection.query(`
         SELECT * FROM links WHERE id = $1
     `, [numberId]);
 
-    if (!rowCont) {
+    if (rowCont === 0) {
         return res.sendStatus(404);
     }
+    
+
+    if (rows[0].userId !== sessionId) {
+        return res.sendStatus()
+    }
+
+ 
 
     res.locals.token = token;
     res.locals.urlId = numberId;
