@@ -1,6 +1,5 @@
 import joi from "joi";
 import dotenv from "dotenv";
-import jwt from "jsonwebtoken";
 import connection from "../db/postgres.js";
 
 dotenv.config();
@@ -24,8 +23,8 @@ export async function getUrlByIdMiddleware(req, res, next) {
     const numberId = parseInt(id);
 
     const { rows, rowCount } = await connection.query(`
-    SELECT id, "shortUrl", url FROM links WHERE id = $1
-    `[numberId]);
+    SELECT * FROM links WHERE id = $1
+    `, [numberId]);
 
     if (!rowCount) {
         res.sendStatus(404);

@@ -27,14 +27,11 @@ export async function shortenUrl(req, res) {
 }
 
 export async function getUrlById(req, res) {
-    const { id } = parseInt(req.params);
+    const { id } = req.params;
+    const url = res.locals.url;
 
-    const { rows } = await connection.query(`
-    SELECT * FROM links WHERE id = $1
-    `[id]);
-    console.log(...rows);
 
-    res.status(200).send(...rows);
+    res.status(200).send(url);
 }
 
 export async function redirect() {
