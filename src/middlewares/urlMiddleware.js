@@ -2,10 +2,18 @@ import joi from "joi";
 import dotenv from "dotenv";
 import connection from "../db/postgres.js";
 
-
 dotenv.config();
 
 export function urlMiddleware(req, res, next) {
+
+    const createUrlSchema = joi.object({
+        url: joi.string().empty().required()
+    })
+
+    const { error } = createUrlSchema.validate(user, {abortEarly: false});
+    if (error) {
+        return res.sendStatus(422);
+    }
     const { authorization } = req.headers;
 
     const token = authorization?.replace('Bearer ', '');
