@@ -1,13 +1,39 @@
-
 import connection from '../db/postgres.js';
+import bcrypt from "bcrypt";
+import jwt from 'jsonwebtoken';
+import dotenv from "dotenv";
+
+dotenv.config();
 
 export async function createUser(req, res) {
-    const newUser = req.body;
-      
+    const {name, email, password} = req.body;
+
     await connection.query(
       `INSERT INTO users (name, email, password) 
-        VALUES ($1, $2, $3)`, [newUser.name, newUser.email, newUser.password]
+        VALUES ($1, $2, $3)`, [name, email, bcrypt.hashSync(password, 10)]
     );
   
     res.status(201).send('Usuário criado com sucesso');
+}
+
+export async function login(req, res) {
+  const userId = res.locals.userId;
+
+  try {
+    await connection.query(`
+      INSERT INTO sessions ("userId")
+      VALUES ($1)`
+    , [userId]);
+
+    const sessionId = await connection.query(`
+      SELECT id from sessions WHERE "userId" = $1 
+    `, [userId]);
+
+    const token = jwt.sign({sessionId}, process.env.JWT_KEY, { expiresIn: 60*60*24*30 });
+
+    res.status(200).send(token);
+
+  } catch {
+    res.sendStatus(500);
   }
+}
