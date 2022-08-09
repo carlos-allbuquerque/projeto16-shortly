@@ -12,7 +12,7 @@ export function urlMiddleware(req, res, next) {
 
     const { error } = createUrlSchema.validate(user, {abortEarly: false});
     if (error) {
-        return res.sendStatus(422);
+        return res.sendStatus(422);dis
     }
     const { authorization } = req.headers;
 

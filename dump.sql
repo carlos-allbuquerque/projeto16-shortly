@@ -1,0 +1,24 @@
+CREATE DATABASE "Shortly";
+
+CREATE TABLE users (
+	id SERIAL PRIMARY KEY,
+	name TEXT,
+	email TEXT UNIQUE,
+	password TEXT,
+	"createdAt" TIMESTAMP WITHOUT TIME ZONE DEFAULT (NOW() AT TIME ZONE 'utc')
+);
+
+CREATE TABLE links (
+	id SERIAL PRIMARY KEY,
+	url TEXT,
+	"shortUrl" TEXT,
+	"userId" INTEGER REFERENCES users(id),
+	"createdAt" TIMESTAMP WITHOUT TIME ZONE DEFAULT (NOW() AT TIME ZONE 'utc'),
+	"visitCount" INTEGER DEFAULT (0)
+);
+
+CREATE TABLE sessions (
+	id SERIAL PRIMARY KEY,
+	"userId" INTEGER REFERENCES users(id),
+	"createdAt" TIMESTAMP WITHOUT TIME ZONE DEFAULT (NOW() AT TIME ZONE 'utc')
+);
